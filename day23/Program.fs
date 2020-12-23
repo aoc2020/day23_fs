@@ -23,10 +23,7 @@ let mainX argv =
     let circle = circle.extendToOneMillion ()
     printfn "circle=%A" circle
     let t1 = DateTime.Now
-    let circle = circle.playRound ()
-    let circle = circle.playRound ()
-    let circle = circle.playRound ()
-    let circle = circle.playRound ()
+    let circle = circle.playRounds (10)
     let t2 = DateTime.Now 
     printfn "Circle after round 1: %A" circle 
     // let ordered = result.getOrderAfterOne () |> Array.tail |> String.Concat

@@ -39,6 +39,23 @@ type Cups(cupToPos: Map<Cup,int>,
     member this.posOf (cup:Cup) = findPos cup
     member this.cupAt (pos:int) = lookUp pos
     
+    member this.forcedGC () : Cups =
+        printfn "shifted: %d" shifted 
+        printfn "Dirty: %A" dirty        
+        let cupPos = dirty
+                        |> Set.toSeq
+                        |> Seq.map (fun (cup:Cup) -> (cup, this.posOf cup))
+                        |> Seq.toArray
+        let accCupPos (acc: Map<Cup,int>) (cupPos:Cup*int) = acc.Add cupPos
+        let newCupToPos = cupPos |> Array.fold accCupPos cupToPos 
+        let accPosCup (acc: Map<int,Cup>) (cupPos:Cup*int) = acc.Add (snd cupPos,fst cupPos)
+//        printfn "New Cup->Pos %A" newCupToPos
+//        printfn "New Pos->Cup %A" newCupToPos
+        let newCups = Cups(cupToPos,posToCup,lastIndex,shifted)
+//        printfn "New cups: %A" newCups 
+        // self
+        newCups
+    
     member this.move3 (target:int) =
         let at_1 = lookUp 1
         let at_2 = lookUp 2
@@ -130,6 +147,7 @@ type CupCircle(cups:Cups,min:Cup,max:Cup) as self =
         if i = 0 then self
         else
             let next = this.playRound ()
+//            let next = next.gc ()
             next.playRounds (i-1)
             
     member this.getOrderAfterOne () =
@@ -141,6 +159,7 @@ type CupCircle(cups:Cups,min:Cup,max:Cup) as self =
         // let rest = cups.[pos1..cups.Length-1]
         // Array.append rest before
         "12345678"
+    member this.gc() : CupCircle = CupCircle(cups.forcedGC(),min,max)
     
     member this.extendToOneMillion () : CupCircle =
         let cups = cups.extendToOneMillion ()
