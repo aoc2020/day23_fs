@@ -18,21 +18,18 @@ let mainX argv =
     let circle = circle.playRounds 10
     printfn "Round 1: %A" circle
     0 
-  else if false then      
+  else if true then      
     let circle = CupCircle(Cups(input2),1u,9u)
-    printfn "circle=%A" circle
-    let result = circle.playRounds (100)
-    // let ordered = result.getOrderAfterOne () |> Array.tail |> String.Concat
-    let ordered = "x"
-    printfn "Cups: %A" circle.Cups 
-    printfn "Answer 1: %s" ordered
-
     let circle = circle.extendToOneMillion ()
-    printfn "extended: %A" circle
+    printfn "circle=%A" circle
     let t1 = DateTime.Now
     let circle = circle.playRound ()
-    let t2 = DateTime.Now
-    let t3 = DateTime.Now 
+    let circle = circle.playRound ()
+    let circle = circle.playRound ()
+    let circle = circle.playRound ()
+    let t2 = DateTime.Now 
+    printfn "Circle after round 1: %A" circle 
+    // let ordered = result.getOrderAfterOne () |> Array.tail |> String.Concat
     // printfn "Time: %A %A" (t2-t1) (t3-t2)
     0  
   else if false then 

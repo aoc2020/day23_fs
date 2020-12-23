@@ -5,12 +5,13 @@ open System
 type Cup = uint
 type FindPos = Cup -> int
 type LookUp = int -> Cup
-type Cups(cups: Cup[],
+type Cups(cupToPos: Map<Cup,int>,
+          posToCup: Map<int,Cup>,
           findPos:FindPos,
           lookUp:LookUp,
           complexity:int,
           lastIndex:int,
-          dirty: Set<int>,
+          dirty: Set<Cup>,
           shifted: int) as self =        
     new(cups:Cup[],shifted:int) =
         let cupToPos : Map<Cup,int> =
@@ -25,29 +26,31 @@ type Cups(cups: Cup[],
         let findPos (c:Cup) : int =
             if cupToPos.ContainsKey c then cupToPos.[c]
             else ((c |> int) + shifted)
-        Cups (cups,findPos,lookUp,0,cups.Length,Set.empty,0)
+        Cups (cupToPos,posToCup,findPos,lookUp,0,cups.Length,Set.empty,0)
     new(cups:Cup[]) = Cups(cups,0)
         
     override this.ToString() =
         let length = min lastIndex 20
-        sprintf "Cups(%s)" ({1..length} |> Seq.map (lookUp) |> String.Concat )
+        sprintf "Cups(%s)" ({1..length}
+                            |> Seq.map (lookUp)
+                            |> Seq.map (sprintf "%d ")
+                            |> String.Concat )
     member this.posOf (cup:Cup) = findPos cup
     member this.cupAt (pos:int) = lookUp pos
     
     member this.move3 (target:int) =
         let at_1 = lookUp 1
+        let at_2 = lookUp 2
+        let at_3 = lookUp 3
+        let at_4 = lookUp 4
         let newLookUp (pos:int) =
-            printfn "newLookup %d target=%d" pos target  
             let a= if pos = 1 then
                         at_1
                    elif pos > target then
-                        printfn "pos after: %d:" pos 
                         lookUp pos
                    elif pos < target - 2 then
-                        printfn "pos before: %d -> [%d]" pos (pos + 3)
                         lookUp (pos + 3)                       
                    else // in move group                        
-                        printfn "in group: %d -> [%d]" pos  (pos-target+3)
                         lookUp (pos-target+4)
             a 
         let newFindPos (cup:Cup) =
@@ -56,7 +59,11 @@ type Cups(cups: Cup[],
             else if pos > target then pos
             else if pos = 1 then 1
             else pos - 3
-        Cups (cups,newFindPos,newLookUp,complexity+1,lastIndex,dirty,shifted)
+        let dirty = dirty.Add at_1
+        let dirty = dirty.Add at_2
+        let dirty = dirty.Add at_3
+        let dirty = dirty.Add at_4
+        Cups (cupToPos,posToCup,newFindPos,newLookUp,complexity+1,lastIndex,dirty,shifted+3)
     
     member this.shift (shiftBy:int) : Cups =         
         let newLookup (i:int) =
@@ -65,14 +72,15 @@ type Cups(cups: Cup[],
             lookUp i
         let newFindCup (cup:Cup) =
             let oldPos = findPos cup
-            if oldPos = 1 then cups.Length
-            else oldPos - 1
-        Cups (cups,newFindCup,newLookup,complexity+1,lastIndex,dirty,shifted+1)
+            let oldPos = oldPos - shiftBy 
+            if oldPos < 1 then lastIndex - oldPos  
+            else oldPos
+        Cups (cupToPos,posToCup,newFindCup,newLookup,complexity+1,lastIndex,dirty,shifted+1)
 
     member this.moveToNextCup() : Cups = (this.shift 1) 
     
     member this.extendTo (last:int) =
-        Cups(cups,findPos,lookUp,complexity,last,dirty,0)
+        Cups(cupToPos,posToCup,findPos,lookUp,complexity,last,dirty,0)
         
     member this.extendToOneMillion() : Cups = this.extendTo 1_000_000
     
