@@ -39,10 +39,10 @@ type Cups(cups: Cup[], findPos:FindPos,lookUp:LookUp,complexity:int) as self =
             else if pos = 0 then 0
             else pos - 3
         Cups (cups,newFindPos,newLookUp,complexity+1)
-    member this.toNextCup() =
+    member this.moveToNextCup() =
         let newLookup (i:int) =
-            if i = 0 then lookUp (cups.Length-1)
-            else lookUp i 
+            if i = (cups.Length-1) then lookUp 0
+            else lookUp (i+1) 
         let newFindCup (cup:Cup) =
             let oldPos = findPos cup
             if oldPos = 0 then cups.Length-1

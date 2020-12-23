@@ -31,5 +31,7 @@ let main argv =
     printfn "cups: %A posOf(9)=%d cupAt(2)=%d" cups (cups.posOf 9u) (cups.cupAt 2)
     let cups = cups.move3 5
     printfn "cups: %A posOf(9)=%d cupAt(2)=%d" cups (cups.posOf 9u) (cups.cupAt 2)
-    0
+    let cups = cups.moveToNextCup ()
+    printfn "cups: %A posOf(9)=%d cupAt(2)=%d" cups (cups.posOf 9u) (cups.cupAt 2)
+    0   
     
