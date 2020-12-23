@@ -19,6 +19,30 @@ type Cups(cups: Cup[], findPos:FindPos,lookUp:LookUp,complexity:int) as self =
     member this.posOf (cup:Cup) = findPos cup
     member this.cupAt (pos:int) = lookUp pos
     
+    member this.move3 (target:int) =
+        printfn "move3 %d" target
+        let chars = [|lookUp(1);lookUp(2);lookUp(3)|]
+        let at_0 = lookUp 0 
+        let newLookUp (pos:int) =
+            if pos = 0 then
+                at_0
+            else if pos < (target - 2) then 
+                lookUp (pos+3)
+            else if pos < target+1 then
+                lookUp (pos-target+3)  
+            else
+                lookUp pos // it's unaffected 
+        let newFindPos (cup:Cup) =
+            let pos = findPos cup
+            if pos < 4 && pos > 0 then (pos + target - 3) 
+            else if pos > target then pos
+            else if pos = 0 then 0
+            else pos - 3
+        Cups (cups,newFindPos,newLookUp,complexity+1)
+            
+        
+
+    
 type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
     
     override this.ToString () = sprintf "CupCircle(%A)" cups
