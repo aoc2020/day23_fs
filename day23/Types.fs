@@ -12,21 +12,21 @@ type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
     member this.currentCup : Cup = cups |> Array.head 
     
     member this.takeThreeNextCups () : Cup[] * CupCircle =
-        [1],self 
-        let taken : Cup[] = (cups |> Array.tail).[0..2]
+        let taken : Cup[] = cups.[1..3]
         let rest : Cup[] = Array.append [|cups.[0]|] (cups.[4..])
         taken, CupCircle(rest,min,max)
-    member this.findNextFrom (cup:Cup) : Cup =
+        
+    member this.findNextFrom (cup:Cup) (selection:Cup[]) : Cup =
         let cup = if cup = min then max else cup - 1
-        if cups |> Array.contains cup then cup
-        else this.findNextFrom cup
+        if selection |> Array.contains cup
+        then this.findNextFrom cup selection 
+        else cup 
         
     member this.insertAt (cup:Cup) (selection:Cup[]) : CupCircle =
-        let rec insertInto (list:Cup[]) : Cup[] =
-            if list.[0] = cup then
-                Array.append [|cup|] (Array.append selection (list.[1..list.Length-1]))
-            else Array.append [|list.[0]|] (insertInto (list.[1..list.Length-1]))
-        let cups = insertInto cups
+        let i = Array.IndexOf (cups,cup) 
+        let before = cups.[0..i]
+        let after = cups.[i+1..cups.Length-1]
+        let cups = Array.append (Array.append before selection) after
         CupCircle(cups,min,max)
     
     member this.moveClockwise () : CupCircle =
@@ -36,15 +36,11 @@ type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
                     
     member this.playRound () : CupCircle = 
         let pickupCircle = this.takeThreeNextCups ()
-        let selection = fst pickupCircle
-        let circle = snd pickupCircle
-        let target = circle.findNextFrom this.currentCup
-        let circle = circle.insertAt target selection
-//        printfn "pickup: %A" pickupCircle 
-//       printfn "target: %d" target
-//        printfn "inserted: %A" circle 
+        let selection : Cup[] = fst pickupCircle
+        let circle : CupCircle = snd pickupCircle
+        let target : Cup = circle.findNextFrom this.currentCup selection 
+        let circle : CupCircle = circle.insertAt target selection
         let circle = circle.moveClockwise ()
-//        printfn "nextState: %A" circle 
         circle 
         
     member this.playRounds (i:int) : CupCircle =
@@ -54,12 +50,11 @@ type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
             next.playRounds (i-1)
             
     member this.getOrderAfterOne () =
-        let rec rotTo1 (cups:Cup[]) : Cup[] =
-//            printfn "rotTo1: %A" cups 
-            if cups.[0] = 1 then cups
-            else rotTo1 (Array.append cups.[1..cups.Length] [|cups.[0]|])
-        rotTo1 cups
-
+        let pos1: int = Array.IndexOf (cups,1)
+        let before = cups.[0..pos1-1]
+        let rest = cups.[pos1..cups.Length-1]
+        Array.append rest before       
+    
     member this.extendToOneMillion () : CupCircle =
         let more = [|max+1..1000000|]
         let cups = Array.append cups more
