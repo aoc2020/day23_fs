@@ -1,9 +1,5 @@
 ﻿open System
 open day23.Types
-open day23.Utils
-open day23.IO
-open day23.Task1
-open day23.Task2 
 
 let toCups (s:String) : Cup[] =
     let _0 = '0' |> int 
@@ -30,5 +26,8 @@ let main argv =
     let t2 = DateTime.Now
     let t3 = DateTime.Now 
     printfn "Time: %A %A" (t2-t1) (t3-t2) 
-    
+ 
+    let cups = Cups([|2;4;7;9|]) 
+    printfn "cups: %A" cups 
+           
     0 // return an integer exit code

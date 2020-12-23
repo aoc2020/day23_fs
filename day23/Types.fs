@@ -5,7 +5,8 @@ open System
 type Cup = int
 type FindPos = Cup -> int
 type LookUp = int -> Cup
-type Cups(cups: Cup[], findPos:FindPos,lookUp:LookUp,complexity:int) as self =           
+type Cups(cups: Cup[], findPos:FindPos,lookUp:LookUp,complexity:int) as self =
+    
     new(cups:Cup[]) =
         let indexOf : Map<Cup,int> =
             let toPair (i:int) (cup:Cup) = (cup,i)
@@ -14,12 +15,10 @@ type Cups(cups: Cup[], findPos:FindPos,lookUp:LookUp,complexity:int) as self =
         let findPos = (fun (i:int) -> indexOf.[i])
         Cups (cups,findPos,lookUp,0)
         
-    member this.toString() = sprintf "Cups(%A)" ({0..cups.Length-1} |> Seq.map (lookUp))
+    override this.ToString() = sprintf "Cups(%s)" ({0..cups.Length-1} |> Seq.map (lookUp) |> String.Concat )
     member this.posOf (cup:Cup) = findPos cup
-    member this.cupAt (pos:int) = lookUp pos 
+    member this.cupAt (pos:int) = lookUp pos
     
-    
-
 type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
     
     override this.ToString () = sprintf "CupCircle(%A)" cups
