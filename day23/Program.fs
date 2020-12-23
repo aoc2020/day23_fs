@@ -12,11 +12,11 @@ let toCups (s:String) : Cup[] =
 let mainX argv =    
   let input2 = toCups("389125467")
   let input = toCups("315679824") 
-  if false then
+  if true then
     let circle = CupCircle(Cups(input2),1u,9u)
     printfn "Circle: %A" circle
     let circle = circle.playRounds 10
-//    printfn "Round 1: %A" circle
+    printfn "Round 1: %A" circle
     0 
   else if false then      
     let circle = CupCircle(Cups(input2),1u,9u)
