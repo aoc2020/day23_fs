@@ -12,15 +12,18 @@ type Cups(cupToPos: Map<Cup,int>,
           complexity:int,
           lastIndex:int,
           dirty: Set<Cup>,
-          shifted: int) as self =        
+          shifted: int) as self =    
     new(cupToPos:Map<Cup,int>,posToCup:Map<int,Cup>,lastIndex:int,shifted:int) =
+//        printfn "New: %A %A %A %A" cupToPos posToCup lastIndex shifted 
         let lookUp (i:int) : Cup =
-            if posToCup.ContainsKey i then posToCup.[i]
-            else (i+shifted) |> uint             
+            let resp = if posToCup.ContainsKey i then posToCup.[i]
+                       else (i+shifted) |> uint
+//            printf "lookUp(4) %d->%d <== : %A" i resp posToCup
+            resp 
         let findPos (c:Cup) : int =
             if cupToPos.ContainsKey c then cupToPos.[c]
             else ((c |> int) + shifted)
-        Cups (cupToPos,posToCup,findPos,lookUp,0,lastIndex,Set.empty,0)
+        Cups (cupToPos,posToCup,findPos,lookUp,0,lastIndex,Set.empty,shifted)
     new(cups:Cup[]) =
         let cupToPos : Map<Cup,int> =
             let toPair (i:int) (cup:Cup) = (cup,i+1)
@@ -49,12 +52,14 @@ type Cups(cupToPos: Map<Cup,int>,
         let accCupPos (acc: Map<Cup,int>) (cupPos:Cup*int) = acc.Add cupPos
         let newCupToPos = cupPos |> Array.fold accCupPos cupToPos 
         let accPosCup (acc: Map<int,Cup>) (cupPos:Cup*int) = acc.Add (snd cupPos,fst cupPos)
+        let newPosToCup = cupPos |> Array.fold accPosCup posToCup 
 //        printfn "New Cup->Pos %A" newCupToPos
 //        printfn "New Pos->Cup %A" newCupToPos
-        let newCups = Cups(cupToPos,posToCup,lastIndex,shifted)
-//        printfn "New cups: %A" newCups 
-        // self
-        newCups
+        let newCups = Cups(newCupToPos,newPosToCup,lastIndex,shifted)
+        printfn "Old cups: %A" self 
+        printfn "New cups: %A" newCups 
+        self
+        // newCups
     
     member this.move3 (target:int) =
         let at_1 = lookUp 1
@@ -147,7 +152,7 @@ type CupCircle(cups:Cups,min:Cup,max:Cup) as self =
         if i = 0 then self
         else
             let next = this.playRound ()
-//            let next = next.gc ()
+            let next = next.gc ()
             next.playRounds (i-1)
             
     member this.getOrderAfterOne () =

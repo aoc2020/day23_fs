@@ -15,7 +15,7 @@ let mainX argv =
   if true then
     let circle = CupCircle(Cups(input2),1u,9u)
     printfn "Circle: %A" circle
-    let circle = circle.playRounds 10
+    let circle = circle.playRounds 100
     printfn "Round 1: %A" circle
     0 
   else if true then      
