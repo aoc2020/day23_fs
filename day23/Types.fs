@@ -20,29 +20,30 @@ type Cups(cups: Cup[], findPos:FindPos,lookUp:LookUp,complexity:int) as self =
     member this.cupAt (pos:int) = lookUp pos
     
     member this.move3 (target:int) =
-        printfn "move3 %d" target
+        // printfn "move3 %d" target
         let chars = [|lookUp(2);lookUp(3);lookUp(4)|]
         let at_1 = lookUp 1
         let newLookUp (pos:int) =
-//            printfn "newLookup %d target=%d" pos target  
+            printfn "newLookup %d target=%d" pos target  
             let a= if pos = 1 then
                         // printfn "pos=0 -> %d" at_0
                         at_1
+                        // 0u
                    elif pos > target then
-                        // printfn "pos after: %d:" pos 
+                        printfn "pos after: %d:" pos 
                         lookUp pos
                    elif pos < target - 2 then
-                        // printfn "pos before: %d -> [%d]" pos (pos + 3)
-                        lookUp (pos + 3) 
+                        printfn "pos before: %d -> [%d]" pos (pos + 3)
+                        lookUp (pos + 3)                       
                    else // in move group                        
-                        // printfn "in group: %d -> [%d]" pos  (pos-target+3)
+                        printfn "in group: %d -> [%d]" pos  (pos-target+3)
                         lookUp (pos-target+4)
 //            printfn "move3:newLookup(%d) -> [%d]" pos a  
             a 
         let newFindPos (cup:Cup) =
             // printfn "move3:newFindCup(%d)" cup 
             let pos = findPos cup
-            if pos < 5 && pos > 1 then (pos + target - 3) 
+            if pos < 5 && pos > 1 then (pos + target - 4) 
             else if pos > target then pos
             else if pos = 1 then 1
             else pos - 3
@@ -88,19 +89,20 @@ type CupCircle(cups:Cups,min:Cup,max:Cup) as self =
         let t2 = DateTime.Now 
         let currentCup = this.currentCup
         let selection = this.findThreeNextCups ()
-        printfn "selection: %d : %A" currentCup selection 
+        // printfn "selection: %d : %A" currentCup selection 
         let t4 = DateTime.Now
         let target : Cup = this.findNextFrom this.currentCup selection
         let targetPos = cups.posOf target 
-        printfn "target: %d" target 
+        // printfn "target: %d" target 
         let t6 = DateTime.Now 
         let cups = cups.move3 targetPos
-        printfn "hello"       
-        printfn "cups.move3 %d -> %A" target cups 
+        // printfn "hello"       
+        // printfn "cups.move3 %d -> %A" target cups 
         let circle = CupCircle(cups,min,max)
-        printfn "world"       
+        // printfn "world"       
         let t8 = DateTime.Now 
         let circle = circle.moveClockwise ()
+        // printfn "Shifted: %A" circle
         let t10 = DateTime.Now
 //        printfn "Times: 2:%A 4:%A 6:%A 8:%A" (t4-t2) (t6-t4) (t8-t6) (t10-t8)
         circle 

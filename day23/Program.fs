@@ -15,7 +15,7 @@ let mainX argv =
   if false then
     let circle = CupCircle(Cups(input2),1u,9u)
     printfn "Circle: %A" circle
-    let circle = circle.playRound ()
+    let circle = circle.playRounds 10
 //    printfn "Round 1: %A" circle
     0 
   else if false then      
@@ -35,19 +35,22 @@ let mainX argv =
     let t3 = DateTime.Now 
     // printfn "Time: %A %A" (t2-t1) (t3-t2)
     0  
-  else 
+  else if false then 
     let cups = Cups(input2) 
     printfn "cups: %A posOf(9)=%d cupAt(2)=%d" cups (cups.posOf 9u) (cups.cupAt 2)
-    let cups = cups.move3 5
+    let cups = cups.move3 9
     { 1..9 } |> Seq.map (fun (i:int) ->
         let cup = cups.cupAt i
         let pos = cups.posOf cup 
         printfn "*** %d -> %A : %A " i cup pos)
-    |> Seq.toArray 
-    
-    
+    |> Seq.toArray    
     printfn "cups: %A posOf(9)=%d cupAt(2)=%d" cups (cups.posOf 9u) (cups.cupAt 2)
     let cups = cups.moveToNextCup ()
     printfn "cups: %A posOf(9)=%d cupAt(2)=%d" cups (cups.posOf 9u) (cups.cupAt 2)
     0   
-    
+  else
+      let cups = Cups([|1u;2u;3u;4u;5u;6u;7u;8u;9u|])
+      let cups = cups.move3 9
+      printfn "%A" cups
+      {1..9} |> Seq.map (fun (i:int) -> printf "[%d@%d]" i (cups.posOf (i |> uint))) |> Seq.toArray 
+      0
