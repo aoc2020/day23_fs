@@ -13,13 +13,18 @@ type Cups(cups: Cup[],
           dirty: Set<int>,
           shifted: int) as self =        
     new(cups:Cup[],shifted:int) =
-        let indexOf : Map<Cup,int> =
+        let cupToPos : Map<Cup,int> =
             let toPair (i:int) (cup:Cup) = (cup,i+1)
-            cups |> Seq.mapi (toPair) |> Map.ofSeq  
-        let lookUp (i:int) =            
-            cups.[i-1]
-        let findPos (c:Cup) =
-            indexOf.[c]
+            cups |> Seq.mapi (toPair) |> Map.ofSeq
+        let posToCup : Map<int,Cup> =
+            let toPair (i:int) (cup:Cup) = (i+1,cup)
+            cups |> Seq.mapi (toPair) |> Map.ofSeq         
+        let lookUp (i:int) : Cup =
+            if posToCup.ContainsKey i then posToCup.[i]
+            else (i+shifted) |> uint             
+        let findPos (c:Cup) : int =
+            if cupToPos.ContainsKey c then cupToPos.[c]
+            else ((c |> int) + shifted)
         Cups (cups,findPos,lookUp,0,cups.Length,Set.empty,0)
     new(cups:Cup[]) = Cups(cups,0)
         
