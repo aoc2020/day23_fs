@@ -48,15 +48,19 @@ type Cups(cups: Cup[],
             else if pos = 1 then 1
             else pos - 3
         Cups (cups,newFindPos,newLookUp,complexity+1,lastIndex)
-    member this.moveToNextCup() : Cups =
+    
+    member this.shift (shiftBy:int) : Cups =         
         let newLookup (i:int) =
-            if i = (cups.Length) then lookUp 1
-            else lookUp (i+1) 
+            let i = i + shiftBy
+            let i = if i > lastIndex then i - lastIndex else i
+            lookUp i
         let newFindCup (cup:Cup) =
             let oldPos = findPos cup
             if oldPos = 1 then cups.Length
             else oldPos - 1
         Cups (cups,newFindCup,newLookup,complexity+1,lastIndex)
+
+    member this.moveToNextCup() : Cups = (this.shift 1) 
     
     member this.extendToOneMillion() : Cups =
         Cups(cups,findPos,lookUp,complexity,1_000_000)
@@ -90,20 +94,14 @@ type CupCircle(cups:Cups,min:Cup,max:Cup) as self =
         let t2 = DateTime.Now 
         let currentCup = this.currentCup
         let selection = this.findThreeNextCups ()
-        // printfn "selection: %d : %A" currentCup selection 
         let t4 = DateTime.Now
         let target : Cup = this.findNextFrom this.currentCup selection
         let targetPos = cups.posOf target 
-        // printfn "target: %d" target 
         let t6 = DateTime.Now 
         let cups = cups.move3 targetPos
-        // printfn "hello"       
-        // printfn "cups.move3 %d -> %A" target cups 
         let circle = CupCircle(cups,min,max)
-        // printfn "world"       
         let t8 = DateTime.Now 
         let circle = circle.moveClockwise ()
-        // printfn "Shifted: %A" circle
         let t10 = DateTime.Now
 //        printfn "Times: 2:%A 4:%A 6:%A 8:%A" (t4-t2) (t6-t4) (t8-t6) (t10-t8)
         circle 
