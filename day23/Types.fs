@@ -13,22 +13,23 @@ type Cups(cupToPos: Map<Cup,int>,
           lastIndex:int,
           dirty: Set<Cup>,
           shifted: int) as self =        
-    new(cups:Cup[],shifted:int) =
-        let cupToPos : Map<Cup,int> =
-            let toPair (i:int) (cup:Cup) = (cup,i+1)
-            cups |> Seq.mapi (toPair) |> Map.ofSeq
-        let posToCup : Map<int,Cup> =
-            let toPair (i:int) (cup:Cup) = (i+1,cup)
-            cups |> Seq.mapi (toPair) |> Map.ofSeq         
+    new(cupToPos:Map<Cup,int>,posToCup:Map<int,Cup>,lastIndex:int,shifted:int) =
         let lookUp (i:int) : Cup =
             if posToCup.ContainsKey i then posToCup.[i]
             else (i+shifted) |> uint             
         let findPos (c:Cup) : int =
             if cupToPos.ContainsKey c then cupToPos.[c]
             else ((c |> int) + shifted)
-        Cups (cupToPos,posToCup,findPos,lookUp,0,cups.Length,Set.empty,0)
-    new(cups:Cup[]) = Cups(cups,0)
-        
+        Cups (cupToPos,posToCup,findPos,lookUp,0,lastIndex,Set.empty,0)
+    new(cups:Cup[]) =
+        let cupToPos : Map<Cup,int> =
+            let toPair (i:int) (cup:Cup) = (cup,i+1)
+            cups |> Seq.mapi (toPair) |> Map.ofSeq
+        let posToCup : Map<int,Cup> =
+            let toPair (i:int) (cup:Cup) = (i+1,cup)
+            cups |> Seq.mapi (toPair) |> Map.ofSeq
+        Cups(cupToPos,posToCup,cups.Length,0)
+    
     override this.ToString() =
         let length = min lastIndex 20
         sprintf "Cups(%s)" ({1..length}
