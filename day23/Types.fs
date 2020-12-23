@@ -2,9 +2,26 @@ module day23.Types
 
 open System
 
-type Cup = int 
+type Cup = int
+type FindPos = Cup -> int
+type LookUp = int -> Cup
+type Cups(cups: Cup[], findPos:FindPos,lookUp:LookUp,complexity:int) as self =           
+    new(cups:Cup[]) =
+        let indexOf : Map<Cup,int> =
+            let toPair (i:int) (cup:Cup) = (cup,i)
+            cups |> Seq.mapi (toPair) |> Map.ofSeq  
+        let lookUp : LookUp = (fun i -> cups.[i])
+        let findPos = (fun (i:int) -> indexOf.[i])
+        Cups (cups,findPos,lookUp,0)
+        
+    member this.toString() = sprintf "Cups(%A)" ({0..cups.Length-1} |> Seq.map (lookUp))
+    member this.posOf (cup:Cup) = findPos cup
+    member this.cupAt (pos:int) = lookUp pos 
+    
+    
 
 type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
+    
     override this.ToString () = sprintf "CupCircle(%A)" cups
     member this.Cups = cups
     member this.Min = min
@@ -20,7 +37,7 @@ type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
         let cup = if cup = min then max else cup - 1
         if selection |> Array.contains cup
         then this.findNextFrom cup selection 
-        else cup 
+        else cup      
         
     member this.insertAt (cup:Cup) (selection:Cup[]) : CupCircle =
         let i = Array.IndexOf (cups,cup) 
@@ -46,7 +63,7 @@ type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
         let t6 = DateTime.Now 
         let circle = circle.moveClockwise ()
         let t7 = DateTime.Now
-        printfn "Times: 2:%A 5:%A 6:%A 7:%A" (t2-t1) (t6-t5) (t7-t6)
+        printfn "Times: 2:%A 6:%A 7:%A" (t2-t1) (t6-t5) (t7-t6)
         circle 
         
     member this.playRounds (i:int) : CupCircle =

@@ -24,7 +24,7 @@ let main argv =
     printfn "Answer 1: %s" ordered
 
     let circle = circle.extendToOneMillion ()
-//    printfn "extended: %A" circle
+    printfn "extended: %A" circle
     let t1 = DateTime.Now
     let circle = circle.playRound ()
     let t2 = DateTime.Now
