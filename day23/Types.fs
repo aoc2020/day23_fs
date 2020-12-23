@@ -2,7 +2,7 @@ module day23.Types
 
 open System
 
-type Cup = int
+type Cup = uint
 type FindPos = Cup -> int
 type LookUp = int -> Cup
 type Cups(cups: Cup[], findPos:FindPos,lookUp:LookUp,complexity:int) as self =
@@ -12,7 +12,7 @@ type Cups(cups: Cup[], findPos:FindPos,lookUp:LookUp,complexity:int) as self =
             let toPair (i:int) (cup:Cup) = (cup,i)
             cups |> Seq.mapi (toPair) |> Map.ofSeq  
         let lookUp : LookUp = (fun i -> cups.[i])
-        let findPos = (fun (i:int) -> indexOf.[i])
+        let findPos = (fun (c:Cup) -> indexOf.[c])
         Cups (cups,findPos,lookUp,0)
         
     override this.ToString() = sprintf "Cups(%s)" ({0..cups.Length-1} |> Seq.map (lookUp) |> String.Concat )
@@ -39,6 +39,15 @@ type Cups(cups: Cup[], findPos:FindPos,lookUp:LookUp,complexity:int) as self =
             else if pos = 0 then 0
             else pos - 3
         Cups (cups,newFindPos,newLookUp,complexity+1)
+    member this.toNextCup() =
+        let newLookup (i:int) =
+            if i = 0 then lookUp (cups.Length-1)
+            else lookUp i 
+        let newFindCup (cup:Cup) =
+            let oldPos = findPos cup
+            if oldPos = 0 then cups.Length-1
+            else oldPos - 1
+        Cups (cups,newFindCup,newLookup,complexity+1)
             
         
 
@@ -57,7 +66,7 @@ type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
         taken, CupCircle(rest,min,max)
         
     member this.findNextFrom (cup:Cup) (selection:Cup[]) : Cup =
-        let cup = if cup = min then max else cup - 1
+        let cup = if cup = min then max else cup - 1u
         if selection |> Array.contains cup
         then this.findNextFrom cup selection 
         else cup      
@@ -102,8 +111,8 @@ type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
         Array.append rest before       
     
     member this.extendToOneMillion () : CupCircle =
-        let more = [|max+1..1000000|]
+        let more = [|max+1u..1000000u|]
         let cups = Array.append cups more
-        CupCircle (cups,min,1000000)
+        CupCircle (cups,min,1000000u)
         
             
