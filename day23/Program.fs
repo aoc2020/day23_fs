@@ -26,8 +26,9 @@ let main argv =
     let circle = circle.extendToOneMillion ()
 //    printfn "extended: %A" circle
     let t1 = DateTime.Now
-//    let circle = circle.playRounds (100000)
+    let circle = circle.playRound ()
     let t2 = DateTime.Now
-    printfn "Time: %A" (t2-t1)
+    let t3 = DateTime.Now 
+    printfn "Time: %A %A" (t2-t1) (t3-t2) 
     
     0 // return an integer exit code

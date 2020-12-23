@@ -34,13 +34,19 @@ type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
         let cups = Array.append cups.[1..cups.Length-1] [|cup|]
         CupCircle(cups,min,max)
                     
-    member this.playRound () : CupCircle = 
+    member this.playRound () : CupCircle =
+        let t1 = DateTime.Now 
         let pickupCircle = this.takeThreeNextCups ()
+        let t2 = DateTime.Now 
         let selection : Cup[] = fst pickupCircle
         let circle : CupCircle = snd pickupCircle
         let target : Cup = circle.findNextFrom this.currentCup selection 
+        let t5 = DateTime.Now 
         let circle : CupCircle = circle.insertAt target selection
+        let t6 = DateTime.Now 
         let circle = circle.moveClockwise ()
+        let t7 = DateTime.Now
+        printfn "Times: 2:%A 5:%A 6:%A 7:%A" (t2-t1) (t6-t5) (t7-t6)
         circle 
         
     member this.playRounds (i:int) : CupCircle =
