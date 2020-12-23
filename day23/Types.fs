@@ -9,93 +9,100 @@ type Cups(cups: Cup[], findPos:FindPos,lookUp:LookUp,complexity:int) as self =
     
     new(cups:Cup[]) =
         let indexOf : Map<Cup,int> =
-            let toPair (i:int) (cup:Cup) = (cup,i)
+            let toPair (i:int) (cup:Cup) = (cup,i+1)
             cups |> Seq.mapi (toPair) |> Map.ofSeq  
-        let lookUp : LookUp = (fun i -> cups.[i])
+        let lookUp : LookUp = (fun i -> cups.[i-1])
         let findPos = (fun (c:Cup) -> indexOf.[c])
         Cups (cups,findPos,lookUp,0)
         
-    override this.ToString() = sprintf "Cups(%s)" ({0..cups.Length-1} |> Seq.map (lookUp) |> String.Concat )
+    override this.ToString() = sprintf "Cups(%s)" ({1..cups.Length} |> Seq.map (lookUp) |> String.Concat )
     member this.posOf (cup:Cup) = findPos cup
     member this.cupAt (pos:int) = lookUp pos
     
     member this.move3 (target:int) =
         printfn "move3 %d" target
-        let chars = [|lookUp(1);lookUp(2);lookUp(3)|]
-        let at_0 = lookUp 0 
+        let chars = [|lookUp(2);lookUp(3);lookUp(4)|]
+        let at_1 = lookUp 1
         let newLookUp (pos:int) =
-            if pos = 0 then
-                at_0
-            else if pos < (target - 2) then 
-                lookUp (pos+3)
-            else if pos < target+1 then
-                lookUp (pos-target+3)  
-            else
-                lookUp pos // it's unaffected 
+//            printfn "newLookup %d target=%d" pos target  
+            let a= if pos = 1 then
+                        // printfn "pos=0 -> %d" at_0
+                        at_1
+                   elif pos > target then
+                        // printfn "pos after: %d:" pos 
+                        lookUp pos
+                   elif pos < target - 2 then
+                        // printfn "pos before: %d -> [%d]" pos (pos + 3)
+                        lookUp (pos + 3) 
+                   else // in move group                        
+                        // printfn "in group: %d -> [%d]" pos  (pos-target+3)
+                        lookUp (pos-target+4)
+//            printfn "move3:newLookup(%d) -> [%d]" pos a  
+            a 
         let newFindPos (cup:Cup) =
+            // printfn "move3:newFindCup(%d)" cup 
             let pos = findPos cup
-            if pos < 4 && pos > 0 then (pos + target - 3) 
+            if pos < 5 && pos > 1 then (pos + target - 3) 
             else if pos > target then pos
-            else if pos = 0 then 0
+            else if pos = 1 then 1
             else pos - 3
         Cups (cups,newFindPos,newLookUp,complexity+1)
     member this.moveToNextCup() =
         let newLookup (i:int) =
-            if i = (cups.Length-1) then lookUp 0
+            // printfn "moveToNextCup:newLookup(%d)" i
+            if i = (cups.Length) then lookUp 1
             else lookUp (i+1) 
         let newFindCup (cup:Cup) =
+            // printfn "moveToNextCup:newFindCup(%d)" cup
             let oldPos = findPos cup
-            if oldPos = 0 then cups.Length-1
+            if oldPos = 1 then cups.Length
             else oldPos - 1
         Cups (cups,newFindCup,newLookup,complexity+1)
-            
-        
-
     
-type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
-    
+type CupCircle(cups:Cups,min:Cup,max:Cup) as self =
     override this.ToString () = sprintf "CupCircle(%A)" cups
     member this.Cups = cups
     member this.Min = min
     member this.Max = max
-    member this.currentCup : Cup = cups |> Array.head 
+    member this.currentCup : Cup = cups.cupAt 1 
     
-    member this.takeThreeNextCups () : Cup[] * CupCircle =
-        let taken : Cup[] = cups.[1..3]
-        let rest : Cup[] = Array.append [|cups.[0]|] (cups.[4..])
-        taken, CupCircle(rest,min,max)
+    member this.findThreeNextCups () : Cup[] =
+        let cup1 = cups.cupAt 2
+        let cup2 = cups.cupAt 3
+        let cup3 = cups.cupAt 4 
+        let taken : Cup[] = [|cup1;cup2;cup3|]
+        taken
         
-    member this.findNextFrom (cup:Cup) (selection:Cup[]) : Cup =
+    member this.findNextFrom (cup:Cup) (selection:Cup[]) : Cup  =
         let cup = if cup = min then max else cup - 1u
         if selection |> Array.contains cup
         then this.findNextFrom cup selection 
         else cup      
         
-    member this.insertAt (cup:Cup) (selection:Cup[]) : CupCircle =
-        let i = Array.IndexOf (cups,cup) 
-        let before = cups.[0..i]
-        let after = cups.[i+1..cups.Length-1]
-        let cups = Array.append (Array.append before selection) after
-        CupCircle(cups,min,max)
-    
     member this.moveClockwise () : CupCircle =
-        let cup = cups.[0]
-        let cups = Array.append cups.[1..cups.Length-1] [|cup|]
+        let cups = cups.moveToNextCup()
         CupCircle(cups,min,max)
                     
     member this.playRound () : CupCircle =
-        let t1 = DateTime.Now 
-        let pickupCircle = this.takeThreeNextCups ()
+        printfn "Play round for %A" self 
         let t2 = DateTime.Now 
-        let selection : Cup[] = fst pickupCircle
-        let circle : CupCircle = snd pickupCircle
-        let target : Cup = circle.findNextFrom this.currentCup selection 
-        let t5 = DateTime.Now 
-        let circle : CupCircle = circle.insertAt target selection
+        let currentCup = this.currentCup
+        let selection = this.findThreeNextCups ()
+        printfn "selection: %d : %A" currentCup selection 
+        let t4 = DateTime.Now
+        let target : Cup = this.findNextFrom this.currentCup selection
+        let targetPos = cups.posOf target 
+        printfn "target: %d" target 
         let t6 = DateTime.Now 
+        let cups = cups.move3 targetPos
+        printfn "hello"       
+        printfn "cups.move3 %d -> %A" target cups 
+        let circle = CupCircle(cups,min,max)
+        printfn "world"       
+        let t8 = DateTime.Now 
         let circle = circle.moveClockwise ()
-        let t7 = DateTime.Now
-        printfn "Times: 2:%A 6:%A 7:%A" (t2-t1) (t6-t5) (t7-t6)
+        let t10 = DateTime.Now
+//        printfn "Times: 2:%A 4:%A 6:%A 8:%A" (t4-t2) (t6-t4) (t8-t6) (t10-t8)
         circle 
         
     member this.playRounds (i:int) : CupCircle =
@@ -105,14 +112,19 @@ type CupCircle(cups:Cup[],min:Cup,max:Cup) as self =
             next.playRounds (i-1)
             
     member this.getOrderAfterOne () =
-        let pos1: int = Array.IndexOf (cups,1)
-        let before = cups.[0..pos1-1]
-        let rest = cups.[pos1..cups.Length-1]
-        Array.append rest before       
+        let pos = cups.posOf 1u
+        let c = cups.moveToNextCup ()
+        // let cups = cups
+        // let pos1: int = Array.IndexOf (cups,1)
+        // let before = cups.[0..pos1-1]
+        // let rest = cups.[pos1..cups.Length-1]
+        // Array.append rest before
+        "12345678"
     
     member this.extendToOneMillion () : CupCircle =
-        let more = [|max+1u..1000000u|]
-        let cups = Array.append cups more
-        CupCircle (cups,min,1000000u)
+        self 
+//        let more = [|max+1u..1000000u|]
+//        let cups = Array.append cups more
+//        CupCircle (cups,min,1000000u)
         
             
