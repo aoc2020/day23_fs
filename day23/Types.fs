@@ -9,14 +9,19 @@ type Cups(cups: Cup[],
           findPos:FindPos,
           lookUp:LookUp,
           complexity:int,
-          lastIndex:int) as self =
-    new(cups:Cup[]) =
+          lastIndex:int,
+          dirty: Set<int>,
+          shifted: int) as self =        
+    new(cups:Cup[],shifted:int) =
         let indexOf : Map<Cup,int> =
             let toPair (i:int) (cup:Cup) = (cup,i+1)
             cups |> Seq.mapi (toPair) |> Map.ofSeq  
-        let lookUp : LookUp = (fun i -> cups.[i-1])
-        let findPos = (fun (c:Cup) -> indexOf.[c])
-        Cups (cups,findPos,lookUp,0,cups.Length)
+        let lookUp (i:int) =            
+            cups.[i-1]
+        let findPos (c:Cup) =
+            indexOf.[c]
+        Cups (cups,findPos,lookUp,0,cups.Length,Set.empty,0)
+    new(cups:Cup[]) = Cups(cups,0)
         
     override this.ToString() =
         let length = min lastIndex 20
@@ -25,7 +30,6 @@ type Cups(cups: Cup[],
     member this.cupAt (pos:int) = lookUp pos
     
     member this.move3 (target:int) =
-        let chars = [|lookUp(2);lookUp(3);lookUp(4)|]
         let at_1 = lookUp 1
         let newLookUp (pos:int) =
             printfn "newLookup %d target=%d" pos target  
@@ -47,7 +51,7 @@ type Cups(cups: Cup[],
             else if pos > target then pos
             else if pos = 1 then 1
             else pos - 3
-        Cups (cups,newFindPos,newLookUp,complexity+1,lastIndex)
+        Cups (cups,newFindPos,newLookUp,complexity+1,lastIndex,dirty,shifted)
     
     member this.shift (shiftBy:int) : Cups =         
         let newLookup (i:int) =
@@ -58,12 +62,14 @@ type Cups(cups: Cup[],
             let oldPos = findPos cup
             if oldPos = 1 then cups.Length
             else oldPos - 1
-        Cups (cups,newFindCup,newLookup,complexity+1,lastIndex)
+        Cups (cups,newFindCup,newLookup,complexity+1,lastIndex,dirty,shifted+1)
 
     member this.moveToNextCup() : Cups = (this.shift 1) 
     
-    member this.extendToOneMillion() : Cups =
-        Cups(cups,findPos,lookUp,complexity,1_000_000)
+    member this.extendTo (last:int) =
+        Cups(cups,findPos,lookUp,complexity,last,dirty,0)
+        
+    member this.extendToOneMillion() : Cups = this.extendTo 1_000_000
     
 type CupCircle(cups:Cups,min:Cup,max:Cup) as self =
     override this.ToString () = sprintf "CupCircle(%A)" cups
