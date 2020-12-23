@@ -30,6 +30,5 @@ let main argv =
     let cups = Cups(input2) 
     printfn "cups: %A posOf(9)=%d cupAt(2)=%d" cups (cups.posOf 9) (cups.cupAt 2)
     let cups = cups.move3 5
-    printfn "cups: %A" cups 
     printfn "cups: %A posOf(9)=%d cupAt(2)=%d" cups (cups.posOf 9) (cups.cupAt 2)
-    0 // return an integer exit code
+    
