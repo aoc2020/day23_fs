@@ -1,8 +1,6 @@
 module day23_tests.TestMappedCupRing
 
 open Xunit
-open day23
-open day23.BaseTypes
 open day23.DefaultCupRing
 open day23.MappedCupRing
 

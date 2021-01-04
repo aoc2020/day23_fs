@@ -1,4 +1,4 @@
-module day23_tests.TestCupRing
+module day23_tests.TestDefaultCupRing
 
 open Xunit
 open day23.DefaultCupRing

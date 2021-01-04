@@ -1,21 +1,7 @@
 module day23.MappedCupRing
 
 open day23.BaseTypes
-open day23.DefaultCupRing
-
-type IRingOverride =
-    abstract member overrideFindCup: PosToCup -> PosToCup
-    abstract member overrideFindPos: CupToPos -> CupToPos
-    abstract member Start: Option<Pos>
-    abstract member End: Option<Pos>
-    
-type NoopRingOverride ()  =
-    interface IRingOverride with 
-        member this.overrideFindCup (pos2Cup: PosToCup) = pos2Cup
-        member this.overrideFindPos (cup2Pos: CupToPos) = cup2Pos
-        member this.Start = None
-        member this.End = None 
-    
+open day23.DefaultCupRing    
 type CupRange =
     | CupRange of Pos*Pos
     | Empty 
@@ -28,7 +14,8 @@ type IMappedRing =
     abstract member findPos: CupToPos 
     abstract member shift: Unit -> IMappedRing
     abstract member First: Pos
-    abstract member Last: Pos 
+    abstract member Last: Pos
+    abstract member Size: Pos 
   
 
 type DirectMappedRing (ring:DefaultCupRing) =
@@ -41,4 +28,5 @@ type DirectMappedRing (ring:DefaultCupRing) =
         member this.shift () = DirectMappedRing(ring.shift()) :> IMappedRing
         member this.First = ring.First
         member this.Last = ring.Last
+        member this.Size = ring.Size 
 
