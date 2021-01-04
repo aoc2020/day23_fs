@@ -1,9 +1,6 @@
 module day23_tests.TestCupRing
 
 open Xunit
-open FsCheck
-open day23.BaseTypes
-open day23.CupMap
 open day23.DefaultCupRing
 
 let CUP1 = 10u
@@ -13,7 +10,7 @@ let CUP3 = 30u
 
 [<Fact>]
 let test123() = 
-    let cr : ICupRing = DefaultCupRing([|CUP1;CUP2;CUP3|],3UL) :> ICupRing 
+    let cr = DefaultCupRing([|CUP1;CUP2;CUP3|],3UL)
     Assert.True <| (cr.First = 1UL)
     Assert.True <| (cr.Last = 3UL)
     Assert.Equal (cr.findCup 1UL, CUP1)
@@ -25,7 +22,7 @@ let test123() =
     
 [<Fact>]
 let test123Default() =
-    let cr : ICupRing = DefaultCupRing([||],3UL) :> ICupRing 
+    let cr = DefaultCupRing([||],3UL) 
     Assert.True <| (cr.First = 1UL)
     Assert.True <| (cr.Last = 3UL)
     Assert.Equal (cr.findCup 1UL, 1u)
@@ -37,8 +34,8 @@ let test123Default() =
 
 [<Fact>]
 let testRotateWithDefaults () = 
-    let cr : ICupRing = DefaultCupRing([||],3UL) :> ICupRing 
-    let cr = cr.stepClockwise ()
+    let cr = DefaultCupRing([||],3UL)
+    let cr = cr.shift ()
     Assert.True <| (cr.First = 2UL)
     Assert.True <| (cr.Last = 4UL)
     Assert.Equal (cr.findCup 2UL, 2u)
@@ -47,6 +44,4 @@ let testRotateWithDefaults () =
     Assert.Equal (cr.findPos 2u, 2UL)
     Assert.Equal (cr.findPos 3u, 3UL)
     Assert.Equal (cr.findPos 1u, 4UL)
-    
-    
     

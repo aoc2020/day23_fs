@@ -9,49 +9,36 @@ type IRingOverride =
     abstract member Start: Option<Pos>
     abstract member End: Option<Pos>
     
-type NoopRingOverride =
+type NoopRingOverride ()  =
     interface IRingOverride with 
         member this.overrideFindCup (pos2Cup: PosToCup) = pos2Cup
         member this.overrideFindPos (cup2Pos: CupToPos) = cup2Pos
         member this.Start = None
         member this.End = None 
     
-    
+type CupRange =
+    | CupRange of Pos*Pos
+    | Empty 
 
-type MappedCupRing (ring:ICupRing,
-                    mappedFindPos:CupToPos,
-                    mappedFindCup:PosToCup,
-                    overrideStart:Pos,
-                    overrideEnd:Pos,
-                    depth:uint) =
-    member this.Ring = ring
-    override this.ToString() =
-        let self = this :> ICupRing 
-        let sep = if self.Size > 17UL then "..." else "" 
-        let firstPart = {self.First..(min self.Last (self.Last-2UL))}
-                        |> Seq.map (fun (p:Pos) -> self.findCup p |> sprintf "%d " )
-                        |> String.concat ""
-        let lastPart = {self.Last - 2UL .. self.Last}
-                        |> Seq.map (fun (p:Pos) -> self.findCup p |> sprintf " %d")
-                        |> String.concat ""
-        sprintf "CupRing(%s%s%s)" firstPart sep lastPart
+type IMappedRing =
+    abstract member underlyingRing: DefaultCupRing
+    abstract member Depth: uint
+    abstract member Range: CupRange
+    abstract member findCup: PosToCup 
+    abstract member findPos: CupToPos 
+    abstract member shift: Unit -> IMappedRing
+    abstract member First: Pos
+    abstract member Last: Pos 
+  
 
-    
-    interface ICupRing with
+type DirectMappedRing (ring:DefaultCupRing) =
+    interface IMappedRing with 
+        member this.underlyingRing = ring
+        member this.Depth = 0u
+        member this.Range = Empty
+        member this.findCup = ring.findCup
+        member this.findPos = ring.findPos
+        member this.shift () = DirectMappedRing(ring.shift()) :> IMappedRing
         member this.First = ring.First
         member this.Last = ring.Last
-        member this.Size = ring.Size
-        member this.Max = ring.Max 
-        member this.stepClockwise () =
-            let ring = ring.stepClockwise ()
-            let overrideStart: Pos = max overrideStart ring.First 
-            MappedCupRing(ring,mappedFindPos,mappedFindCup,overrideStart,overrideEnd,depth) :> ICupRing
-        member this.findPos (cup:Cup) = ring.findPos cup
-        member this.findCup (pos:Pos) = ring.findCup pos 
-        
-let overrideCupRing (ring:ICupRing) (ringOverride:IRingOverride) : int = // ICupRing =
-    let findCup = ringOverride.overrideFindCup ring.findCup
-    let findPos = ringOverride.overrideFindPos ring.findPos
-    42 
-    
-    
+
