@@ -8,7 +8,7 @@ type Crab (ring: CupRing, step: uint) =
     
     member this.shuffle () : Crab =
         let start = ring.startCups ()
-        let next = start.Next
+        let next = start.TargetCup
         let pos = ring.findPos next
         this        
         

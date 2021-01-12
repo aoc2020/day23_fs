@@ -27,6 +27,7 @@ type DefaultCupRing (cups:CupMap,
     member this.Last = last
     member this.Max = max
     member this.Depth = 0u
+    member this.CupMap = cups 
     member this.findPos (cup:Cup) =
         if cups.containsCup cup then cups.getPos cup 
         else defaultPos cup
@@ -39,4 +40,7 @@ type DefaultCupRing (cups:CupMap,
         let first = first + 1UL
         let last = last + 1UL
         let cups = cups.Move cup last
-        DefaultCupRing (cups,first,last,max,defaultPos,defaultCup)   
+        DefaultCupRing (cups,first,last,max,defaultPos,defaultCup)
+        
+    member this.withCups (cups:CupMap) : DefaultCupRing =
+        DefaultCupRing(cups,first,last,max,defaultPos,defaultCup)

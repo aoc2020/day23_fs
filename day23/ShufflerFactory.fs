@@ -5,9 +5,12 @@ open day23.MappedCupRing
 
 type Shuffler = IMappedRing -> Pos -> IMappedRing
 
-let flattenAndDirect (ring:IMappedRing) (pos:Pos) : IMappedRing =
+let flattenAndDirectLeft (ring:IMappedRing) (pos:Pos) : IMappedRing =
     let ring = flattenRing ring
-    ring  
+    let startCups = ring.startCups ()
+    let target = startCups.TargetCup
+    DirectMappedRing (ring.underlyingRing) :> IMappedRing
+    
 
 let noopShuffler (ring:IMappedRing) (pos:Pos) : IMappedRing = ring 
 

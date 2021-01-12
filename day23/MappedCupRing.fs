@@ -2,8 +2,10 @@ module day23.MappedCupRing
 
 open System
 open day23.BaseTypes
-open day23.DefaultCupRing    
-type CupRange (first:uint, last:uint) =
+open day23.CupMap
+open day23.DefaultCupRing
+open day23.StartCups    
+type CupRange (first:Pos, last:Pos) =
     member this.First = first
     member this.Last = last      
 
@@ -20,9 +22,13 @@ type IMappedRing =
     abstract member Last: Pos
     abstract member Size: Pos
     abstract member Max: Cup
-    abstract member Equals : 'a -> bool 
+    abstract member Equals : 'a -> bool
+    abstract member startCups : Unit -> StartCups
+    abstract member moveRangeLeft : CupRange -> Pos -> IMappedRing
+    abstract member moveRangeRight : CupRange -> Pos -> IMappedRing 
     
 let mappedRingEqual (this: IMappedRing) (other) : bool =
+        printfn "X"
         match box other with
         | :? IMappedRing as other -> 
             let cups = [|this.First..this.Last|] |> Array.map this.findCup           
@@ -48,6 +54,35 @@ type DirectMappedRing (ring:DefaultCupRing) =
         member this.Size = ring.Size
         member this.Max = ring.Max
         override this.Equals (other) : bool = mappedRingEqual this other
+        member this.startCups () : StartCups  =
+            let cup_1 = ring.findCup (ring.First)
+            let cup_2 = ring.findCup (ring.First+1UL)
+            let cup_3 = ring.findCup (ring.First+2UL)
+            let cup_4 = ring.findCup (ring.First+3UL)
+            let first4cups = [|cup_1;cup_2;cup_3;cup_4|]
+            StartCups (first4cups, ring.Max)
+        member this.moveRangeLeft (range:CupRange) (steps: Pos) : IMappedRing =
+            let adjust x = x - steps
+            let addCup (cups:CupMap) (posCup:Pos*Cup) = cups.Add (fst posCup) (snd posCup) 
+            let cupMap = ring.CupMap
+            let range = [|range.First..range.Last|] 
+            let cups = range |> Array.map ring.findCup 
+            let range = range |> Array.map adjust           
+            let posCups = Array.zip range cups
+            let cupMap = posCups |> Array.fold addCup cupMap
+            let ring = ring.withCups cupMap
+            DirectMappedRing(ring) :> IMappedRing
+        member this.moveRangeRight (range:CupRange) (steps: Pos) : IMappedRing =
+            let adjust x = x + steps
+            let addCup (cups:CupMap) (posCup:Pos*Cup) = cups.Add (fst posCup) (snd posCup) 
+            let cupMap = ring.CupMap
+            let range = [|range.First..range.Last|] |> Array.rev 
+            let cups = range |> Array.map ring.findCup
+            let range = range |> Array.map adjust           
+            let posCups = Array.zip range cups
+            let cupMap = posCups |> Array.fold addCup cupMap
+            let ring = ring.withCups cupMap
+            DirectMappedRing(ring) :> IMappedRing      
         
     override this.Equals (other) : bool = mappedRingEqual this other
     override this.ToString () : String =

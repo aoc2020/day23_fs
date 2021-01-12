@@ -69,8 +69,42 @@ let testShifted () =
     Assert.Equal (ring,ring2)
     
 [<Fact>] 
-let testFlattenFlat() =
+let testFlattenFlat () =
     let ring: DefaultCupRing = DefaultCupRing([||],9UL)
     let ring: IMappedRing = DirectMappedRing(ring) :> IMappedRing 
     let flat = flattenRing ring
     Assert.Equal (ring,flat)
+
+[<Fact>]    
+let testMoveValuesLeft () =
+    let ring = createRing "123456789" false
+    let ring = ring.Ring
+    let ring = ring.moveRangeLeft (CupRange(3UL,5UL)) 1UL
+    let expected = createRing "134556789" false
+    // moved/duplicate values are undefined
+    Assert.Equal (expected.Ring.ToString (),ring.ToString ())
+
+[<Fact>]    
+let testMoveValuesPaddedLeft () =
+    let ring = createRing "123456789" true 
+    let ring = ring.Ring
+    let ring = ring.moveRangeLeft (CupRange(14UL,16UL)) 12UL
+    let expected = "DefaultMappedRing(1 14 15 16 5 6 7 8 9 10 11 12 13 14 15...999999 1000000)"
+    Assert.Equal (expected,ring.ToString())
+
+[<Fact>]
+let testMoveValuesRight () =
+    let ring = createRing "123456789" false
+    let ring = ring.Ring
+    let ring = ring.moveRangeRight (CupRange(3UL,5UL)) 2UL
+    let expected = createRing "123434589" false
+    // moved/duplicate values are undefined
+    Assert.Equal (expected.Ring.ToString (),ring.ToString ())
+
+[<Fact>]    
+let testMoveValuesPaddedRight () =
+    let ring = createRing "123456789" true 
+    let ring = ring.Ring
+    let ring = ring.moveRangeRight (CupRange(2UL,3UL)) 999996UL
+    let expected = "DefaultMappedRing(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15...3 1000000)"
+    Assert.Equal (expected,ring.ToString())

@@ -46,11 +46,11 @@ let testReadGroup() =
 let testNextCup() =
     let ring: CupRing = createRing "432567891" true
     printfn "testNextCup: start cups: %A" (ring.startCups ())
-    let next = (ring.startCups()).Next
+    let next = (ring.startCups()).TargetCup
     Assert.Equal (CUP_1,next)
 
 [<Fact>]
 let testNextCupRot () =
     let ring: CupRing = createRing "231456798" true 
-    let next = (ring.startCups()).Next
+    let next = (ring.startCups()).TargetCup
     Assert.Equal (CUP_1M,next)

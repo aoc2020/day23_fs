@@ -1,11 +1,9 @@
 module day23_tests.TestExample1
 
 open Xunit
-open day23
 open day23.Crab
 open day23.CupRing
 open day23.RingFactory 
-
 let INIT_RING () : CupRing = createRing "389125467" false
 
 [<Fact>]
